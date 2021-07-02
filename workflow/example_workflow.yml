@@ -1,0 +1,51 @@
+name: macOS and iOS Actions on Orka Example
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  spin_up:
+    runs-on: [self-hosted, master]
+    steps:
+    - name: Spin Up VM & Register Runner
+      id: spin_up
+      uses: jeff-vincent/orka-spin-up@master
+      with:
+        orkaIP: http://10.221.188.100
+        orkaUser: <orka_username>
+        orkaPass: <orka_password>
+        orkaBaseImage: gh_agent.img
+        githubUser: <gh_username>
+        githubPat: <gh_pat>
+        githubRepoName: <gh_repo_name>
+    outputs:
+      uniqueVMActionsTag: ${{ steps.spin_up.outputs.uniqueVMActionsTag }}
+      vmName: ${{ steps.spin_up.outputs.vmName }}
+      orkaNodeName: ${{ steps.spin_up.outputs.orkaNodeName }}
+        
+  native_job:
+    needs: spin_up
+    runs-on: [self-hosted, "${{ needs.spin_up.outputs.uniqueVMActionsTag }}"]
+    steps:
+    - name: Native Job
+      id: native_job
+      run: echo "I'm running on ${{ needs.spin_up.outputs.uniqueVMActionsTag }}"
+      
+  tear_down:
+    if: always()
+    needs: [spin_up, native_job]
+    runs-on: [self-hosted, master]
+    steps:
+    - name: Tear Down VM
+      id: tear_down
+      uses: jeff-vincent/orka-tear-down@master
+      with:
+        orkaUser: <orka_username>
+        orkaPass: <orka_password>
+        vmName: ${{ needs.spin_up.outputs.vmName }}
+        orkaNodeName: ${{ needs.spin_up.outputs.orkaNodeName }}
+        githubUser: <gh_user>
+        githubPat: <gh_pat>
