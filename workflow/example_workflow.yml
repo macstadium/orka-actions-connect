@@ -12,7 +12,7 @@ jobs:
     steps:
     - name: Spin Up VM & Register Runner
       id: spin_up
-      uses: jeff-vincent/orka-spin-up@master
+      uses: jeff-vincent/orka-actions-spin-up@master
       with:
         orkaIP: http://10.221.188.100
         orkaUser: <orka_username>
@@ -41,7 +41,7 @@ jobs:
     steps:
     - name: Tear Down VM
       id: tear_down
-      uses: jeff-vincent/orka-tear-down@master
+      uses: jeff-vincent/orka-actions-tear-down@master
       with:
         orkaUser: <orka_username>
         orkaPass: <orka_password>
