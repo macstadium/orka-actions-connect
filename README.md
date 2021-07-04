@@ -6,7 +6,7 @@ When your iOS and macOS minutes on GitHub Actions get to be too cost intensive, 
 
 ## Overview
 
-This system relies on two Actions -- `jeff-vincent/orka-spin-up@master` and `jeff-vincent/orka-tear-down@master`. You can see example usage of these in the `/workflow/example_workflow.yml` file.
+This system relies on two Actions -- `jeff-vincent/orka-actions-spin-up@master` and `jeff-vincent/orka-actions-tear-down@master`. You can see example usage of these in the `/workflow/example_workflow.yml` file.
 
 These Actions run on GitHub Actions self-hosted runners tagged 'master'. These 'master' runners will be responsible for creating and destroying ephemeral macOS compute resources running in Orka. These 'masters' can be run in the K8s sandbox associated with Orka for HA, or in Docker, or directly on an adjacent Orka VM. 
 
