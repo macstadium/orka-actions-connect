@@ -13,7 +13,6 @@ import tarfile
 logging.basicConfig(filename='runner-connect.log', level=logging.DEBUG)
 CONFIG = configparser.ConfigParser()
 CONFIG.read('/Users/admin/agent/runner_connect.cfg')
-GITHUB_REPO_NAME = CONFIG['repo']['name']
 PATH_TO_RUNNER = CONFIG['runner']['path']
 
 class GitHubActionsRunnerConnect:
@@ -29,7 +28,8 @@ class GitHubActionsRunnerConnect:
         self.github_user = json.loads(github_user._content.decode("utf-8"))['value']
         github_pat = requests.get('http://169.254.169.254/metadata/github_pat')
         self.github_pat = json.loads(github_pat._content.decode("utf-8"))['value']
-        print(self.github_pat)
+        github_repo_name = requests.get('http://169.254.169.254/metadata/github_repo_name')
+        self.github_repo_name = json.loads(github_repo_name._content.decode("utf-8"))['value']
         self.gh_session = requests.Session()
         self.gh_session.auth = (self.github_user, self.github_pat)
 
@@ -54,7 +54,7 @@ class GitHubActionsRunnerConnect:
 
     def _build_get_token_request_url(self):
         try:
-            return f"{self.api_base_url}repos/{self.github_user}/{GITHUB_REPO_NAME}/actions/runners/registration-token"
+            return f"{self.api_base_url}repos/{self.github_user}/{self.github_repo_name}/actions/runners/registration-token"
         except Exception as e:
             logging.error(str(e))
 
@@ -78,7 +78,7 @@ class GitHubActionsRunnerConnect:
 
     def register_runner(self):
         try:
-            repo_url = CONFIG['repo']['url']
+            repo_url = f"https://github.com/{self.github_user}/{self.github_repo_name}"
             labels = self.vm_name
             runner_path = PATH_TO_RUNNER
             config_path = os.path.join(runner_path, 'config.sh')

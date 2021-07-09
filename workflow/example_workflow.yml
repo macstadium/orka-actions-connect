@@ -1,4 +1,4 @@
-name: macOS and iOS Actions on Orka Example
+name: XcodeBuild
 
 on:
   push:
@@ -8,17 +8,17 @@ on:
 
 jobs:
   spin_up:
-    runs-on: [self-hosted, master]
+    runs-on: [self-hosted, master-runner]
     steps:
-    - name: Spin Up VM & Register Runner
+    - name: Spin Up VM
       id: spin_up
-      uses: jeff-vincent/orka-spin-up@master
+      uses: jeff-vincent/orka-actions-spin-up@master
       with:
         orkaIP: http://10.221.188.100
-        orkaUser: <orka_username>
-        orkaPass: <orka_password>
-        orkaBaseImage: gh_agent.img
-        githubUser: <gh_username>
+        orkaUser: <orka_user>
+        orkaPass: <orka_pass>
+        orkaBaseImage: actions_agent.img
+        githubUser: <gh_user>
         githubPat: <gh_pat>
         githubRepoName: <gh_repo_name>
     outputs:
@@ -26,26 +26,29 @@ jobs:
       vmName: ${{ steps.spin_up.outputs.vmName }}
       orkaNodeName: ${{ steps.spin_up.outputs.orkaNodeName }}
         
+        
   native_job:
     needs: spin_up
     runs-on: [self-hosted, "${{ needs.spin_up.outputs.uniqueVMActionsTag }}"]
     steps:
     - name: Native Job
       id: native_job
-      run: echo "I'm running on ${{ needs.spin_up.outputs.uniqueVMActionsTag }}"
+      run: |
+        echo "I'm running on ${{ needs.spin_up.outputs.uniqueVMActionsTag }}"
+        system_profiler
       
   tear_down:
     if: always()
     needs: [spin_up, native_job]
-    runs-on: [self-hosted, master]
+    runs-on: [self-hosted, master-runner]
     steps:
     - name: Tear Down VM
       id: tear_down
-      uses: jeff-vincent/orka-tear-down@master
+      uses: jeff-vincent/orka-actions-tear-down@master
       with:
-        orkaUser: <orka_username>
-        orkaPass: <orka_password>
+        orkaUser: <orka_user>
+        orkaPass: <orka_pass>
         vmName: ${{ needs.spin_up.outputs.vmName }}
-        orkaNodeName: ${{ needs.spin_up.outputs.orkaNodeName }}
         githubUser: <gh_user>
         githubPat: <gh_pat>
+        githubRepoName: <gh_repo_name>
