@@ -30,7 +30,7 @@ You will need to add ~30 lines of boilerplate to your existing GitHub Actions wo
 
 ### Master
 
-You simply need one or more long-living GitHub Actions self-hosted runners tagged as 'master'. You can stand these up in Orka's K8s Sandbox for HA, or in Docker running on a sibling VM in Orka.
+You simply need one or more long-living GitHub Actions self-hosted runners labeled 'master'. You can stand these up in Orka's K8s Sandbox for HA, or in Docker running on a sibling VM in Orka.
 
 >[Example `docker run` command](https://github.com/jeff-vincent/orka-actions-connect/blob/main/master/start_master.sh)
 
