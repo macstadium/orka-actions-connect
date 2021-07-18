@@ -29,7 +29,7 @@ You will need to add 30+ lines to your existing GitHub Actions workflow definiti
 
 ### Master
 
-You simply need one or more long-living GitHub Actions self-hosted runners tagged as 'master'. You can stand these up in Orka's K8s Sandbox for HA, or in Docker or on a sibling VM in Orka.
+You simply need one or more long-living GitHub Actions self-hosted runners tagged as 'master'. You can stand these up in Orka's K8s Sandbox for HA, or in Docker running on a sibling VM in Orka.
 
 ### Agent
 
