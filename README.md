@@ -25,7 +25,7 @@ There are three components to this system.
 
 ### Workflow
 
-You will need to add ~30 lines to your existing GitHub Actions workflow definition. This will handle spinning up a new macOS compute resource based on an image you've defined, passing your existing workflow to that new VM, and finally tearing the VM down and remove the runner from GitHub.
+You will need to add ~30 lines to your existing GitHub Actions workflow definition. This will handle spinning up a new macOS compute resource based on an image you've defined, passing your existing workflow to that new VM, and finally tearing the VM down and removing the runner from GitHub.
 
 >[View the workflow documentation](https://github.com/jeff-vincent/orka-actions-spin-up/blob/master/README.md)
 
