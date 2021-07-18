@@ -33,9 +33,9 @@ You will need to add ~30 lines to your existing GitHub Actions workflow definiti
 
 You simply need one or more long-living GitHub Actions self-hosted runners tagged as 'master'. You can stand these up in Orka's K8s Sandbox for HA, or in Docker running on a sibling VM in Orka.
 
->[Example `docker run` command]()
+>[Example `docker run` command](https://github.com/jeff-vincent/orka-actions-connect/blob/main/master/start_master.sh)
 
->NOTE: you'll need to replace the token with a valid one (most likely generated from the UI).
+>NOTE: you'll need to set a valid token (most likely generated from the UI).
 
 ### Agent
 
