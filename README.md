@@ -5,9 +5,7 @@ Run native GitHub Actions jobs ephemerally on MacStadium's Orka.
 Orka-Actions-Connect will allow you to run your existing GitHub Actions workflow on single use macOS VMs in MacStadium's Orka. 
 
 ## Overview
-Orka-Actions-Connect relies on two Actions -- `jeff-vincent/orka-actions-spin-up@master` and `jeff-vincent/orka-actions-tear-down@master`. You can see example usage of these in the `/workflow/example_workflow.yml` file.
-
-These Actions run on GitHub Actions self-hosted runners tagged 'master'. These 'master' runners are responsible for creating and destroying ephemeral macOS compute resources running in Orka. They can be run in the K8s sandbox associated with Orka for HA, or in Docker on an adjacent Orka VM. 
+Orka-Actions-Connect relies on two Actions -- `jeff-vincent/orka-actions-up@main` and `jeff-vincent/orka-actions-down@main`. These Actions run on ubuntu-latest. They are responsible for connecting to your Orka environment via VPN and spinning up a macOS VM.
 
 The resulting macOS compute resource registers itself as a GitHub self-hosted runner tagged specifically for the given job it has been spun up for. A registration script that has been [added to the targeted `.img` file defined in Orka] pulls metadata from the VM that was set by the Action that spun it up, and then registers a self-hosted runner accordingly. In order to keep the flow synchronous, and thereby avoid the problem of no appropriately tagged runner being found, the [Orka-Action-Spin-Up](https://github.com/jeff-vincent/orka-actions-spin-up) Action waits for the runner to register itself before it completes. 
 
@@ -18,27 +16,104 @@ The unique tag that has been applied to the newly minted runner is passed to the
 
 - Set up an [Orka](https://orkadocs.macstadium.com/docs) Account
 
-## Usage
+## Configure your macOS agent image
 
-There are three components to this system.
+1. [Spin up an Orka VM](https://orkadocs.macstadium.com/docs/quick-start#5-create-and-deploy-your-first-vm-instance)
+2. Clone this repo down to the VM. 
+3. Run the following:
+```
+cd orka-actions-connect/agent && ./setup.sh
+```
+4. Open the Automator App
+5. Choose "Application"
+6. In the following view, click "Utilities" in the leftmost menu and then double click "Run Shell Script".
+7. Enter the following in the view:
+```
+python3 /Users/admin/agent/runner_connect.py
+```
+8. Save the application. 
+9. Navigate to "System Preferences" > "Users & Groups". Select "Login Items" and then drag and drop your new application to add it to your login items for the selected user.
+10. Click "Login Options" in this same view, and enable automatic login for your default user.
+11. From your local machine via the Orka CLI, run:
+```
+orka image list
+```
+12. Collect the VM ID of the machine you've been working on.
+13. Again from the CLI, run:
+```
+orka image save
+```
+14. Pass the ID you just collected and name the image with the suffix `.img`.
+15. Pass this new image file name in your GitHub Actions workflow in the `spin_up` job. 
 
-### Workflow
+## Example Workflow
 
-You will need to add ~30 lines of boilerplate to your existing GitHub Actions workflow definition. This will handle spinning up a new macOS compute resource based on an image you've defined, passing your existing workflow to that new VM, and finally tearing the VM down and removing the runner from GitHub.
+```
+on:
+  push:
+    branches:
+      - main
 
->[View the workflow documentation](https://github.com/jeff-vincent/orka-actions-spin-up/blob/master/README.md)
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Job 1
+      id: job1
+      uses: jeff-vincent/orka-actions-up@main
+      with:
+        orkaIP: http://10.221.188.100
+        orkaUser: ${{ secrets.ORKA_USER }}
+        orkaPass: ${{ secrets.ORKA_PASS }}
+        orkaBaseImage: gha_bigsur_v3.img
+        githubUser: ${{ secrets.GH_USER }}
+        githubPat: ${{ secrets.GH_PAT }}
+        githubRepoName: orka-actions-up
+        vpnUser: ${{ secrets.VPN_USER }}
+        vpnPassword: ${{ secrets.VPN_PASSWORD }}
+        vpnAddress: ${{ secrets.VPN_ADDRESS }}
+        vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+    outputs:
+      vm-name: ${{ steps.job1.outputs.vm-name }}
+         
+  job2:
+    needs: job1
+    runs-on: [self-hosted, "${{ needs.job1.outputs.vm-name }}"]
+    steps:
+    - name: Job 2
+      id: job2
+      run: |
+        sw_vers
+  job3:
+    if: always()
+    needs: [job1, job2]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Job 3
+      id: job3
+      uses: jeff-vincent/orka-actions-down@main
+      with:
+        orkaIP: http://10.221.188.100
+        orkaUser: ${{ secrets.ORKA_USER }}
+        orkaPass: ${{ secrets.ORKA_PASS }}
+        orkaBaseImage: gha_bigsur_v3.img
+        githubUser: ${{ secrets.GH_USER }}
+        githubPat: ${{ secrets.GH_PAT }}
+        githubRepoName: orka-actions-up
+        vpnUser: ${{ secrets.VPN_USER }}
+        vpnPassword: ${{ secrets.VPN_PASSWORD }}
+        vpnAddress: ${{ secrets.VPN_ADDRESS }}
+        vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+        vmName: ${{ needs.job1.outputs.vm-name }}
+```
 
-### Master
+## job2 example output
 
-You simply need one or more long-living GitHub Actions self-hosted runners labeled 'master'. You can stand these up in Orka's K8s Sandbox for HA, or in Docker running on a sibling VM in Orka. The master can live elsewhere also, but that will require setting up a persistent VPN connection in order to interact with the Orka API from the master environment.
-
->[Example `docker run` command](https://github.com/jeff-vincent/orka-actions-connect/blob/main/master/start_master.sh)
-
->NOTE: you'll need to set a valid token (most likely generated from the GitHub UI).
-
-### Agent
-
-You will need to create an Orka `.img` file based on your targeted OS to act as a template for your dynamically generated macOS compute instances. 
-
->[View the agent documentation](#)
-
+```
+Run sw_vers
+  sw_vers
+  shell: /bin/bash -e {0}
+ProductName:	macOS
+ProductVersion:	11.3
+BuildVersion:	20E232
+```

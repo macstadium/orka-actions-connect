@@ -70,12 +70,6 @@ class GitHubActionsRunnerConnect:
         except Exception as e:
             logging.error(str(e))
 
-    # def _create_runner_name(self):
-    #     letters = string.ascii_lowercase
-    #     prefix = CONFIG['runner']['name']
-    #     suffix = ''.join(random.choice(letters) for i in range(10))
-    #     return f"{prefix}-{suffix}"
-
     def register_runner(self):
         try:
             repo_url = f"https://github.com/{self.github_user}/{self.github_repo_name}"
