@@ -42,7 +42,7 @@ orka image list
 orka image save
 ```
 14. Pass the ID you just collected and name the image with the suffix `.img`.
-15. Pass this new image file name in your GitHub Actions workflow in the `spin_up` job. 
+15. Pass this new image file name in your GitHub Actions workflow as your `orkaBaseImage`. 
 
 ## Example Workflow
 
