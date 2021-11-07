@@ -2,12 +2,12 @@ import configparser
 import json
 import logging
 import os
-from pathlib import Path
 import random
 import requests
 import string
 import subprocess
 import tarfile
+from pathlib import Path
 
 
 logging.basicConfig(filename='runner-connect.log', level=logging.DEBUG)
@@ -38,7 +38,6 @@ class GitHubActionsRunnerConnect:
         runner_installed = False
         if 'bin' in os.listdir(PATH_TO_RUNNER):
             runner_installed = True
-        print(runner_installed) 
         return runner_installed
 
     def install_runner(self):
@@ -64,7 +63,6 @@ class GitHubActionsRunnerConnect:
             response = self.gh_session.post(url, headers=self.headers)
             response = json.loads(response._content)
             self.token = response['token']
-            print(self.token)
             log = f"Token created: {self.token}"
             logging.info(log)
         except Exception as e:
@@ -92,24 +90,18 @@ class GitHubActionsRunnerConnect:
         except Exception as e:
             logging.error(str(e))
 
-if __name__ == '__main__':
-    runner_connect = GitHubActionsRunnerConnect()
+def main(runner_connect)
     if runner_connect.check_for_runner():
-        print('runner found')
         runner_connect.generate_token()
-        print('token generated')
         print(runner_connect.token)
         runner_connect.register_runner()
-        print('runner registered')
         runner_connect.start_runner()
-        print('runner started')
     else:
-        print('runner NOT found')
         runner_connect.install_runner()
-        print('runner installed')
         runner_connect.generate_token()
-        print('token generated')
         runner_connect.register_runner()
-        print('runner registered')
         runner_connect.start_runner()
-        print('runner started')
+
+if __name__ == '__main__':
+    runner_connect = GitHubActionsRunnerConnect()
+    main(runner_connect)
