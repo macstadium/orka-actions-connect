@@ -90,7 +90,7 @@ class GitHubActionsRunnerConnect:
         except Exception as e:
             logging.error(str(e))
 
-def main(runner_connect)
+def main(runner_connect):
     if runner_connect.check_for_runner():
         runner_connect.generate_token()
         print(runner_connect.token)
