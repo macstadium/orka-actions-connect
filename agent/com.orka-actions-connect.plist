@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+ <dict>
+   <key>Label</key>
+   <string>com.runner.connect.plist</string>
+   <key>RunAtLoad</key>
+   <true/>
+   <key>UserName</key>
+   <string>admin</string>
+   <key>GroupName</key>
+   <string>staff</string>
+   <key>InitGroups</key>
+   <true/>
+   <key>ProgramArguments</key>
+   <array>
+     <string>/usr/bin/python3</string>
+     <string>/Users/admin/agent/runner_connect.py</string>
+   </array>
+   <key>StandardErrorPath</key>
+   <string>/tmp/orka-actions-connect.err</string>
+   <key>StandardOutPath</key>
+   <string>/tmp/orka-actions-connect.out</string>
+ </dict>
+</plist>
