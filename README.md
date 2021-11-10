@@ -3,7 +3,7 @@
 Orka-Actions-Connect will allow you to run your existing GitHub Actions workflow on single use macOS VMs in MacStadium's Orka. 
 
 ## Overview
-Orka-Actions-Connect relies on two Actions -- `jeff-vincent/orka-actions-up@main` and `jeff-vincent/orka-actions-down@main`. These Actions are meant to run on `ubuntu-latest`. They are responsible for connecting to your Orka environment via VPN, spinning up a macOS VM, and ultimately tearing it down.
+Orka-Actions-Connect relies on two Actions -- `jeff-vincent/orka-actions-up@v1.0.1` and `jeff-vincent/orka-actions-down@v1.0.0`. These Actions are meant to run on `ubuntu-latest`. They are responsible for connecting to your Orka environment via VPN, spinning up a macOS VM, and ultimately tearing it down.
 
 The resulting macOS compute resource registers itself as a GitHub self-hosted runner tagged specifically for the given job it has been spun up for. A registration script that has been added to the targeted `.img` file defined in Orka pulls metadata from the VM that was set by the Action that spun it up, and then registers a self-hosted runner accordingly. In order to keep the flow synchronous, and thereby avoid the problem of no appropriately tagged runner being found, the [Orka-Action-Up](https://github.com/jeff-vincent/orka-actions-up) Action waits for the runner to register itself before it completes. 
 
@@ -58,7 +58,7 @@ jobs:
     steps:
     - name: Job 1
       id: job1
-      uses: jeff-vincent/orka-actions-up@main
+      uses: jeff-vincent/orka-actions-up@v1.0.1
       with:
         orkaIP: http://10.221.188.100
         orkaUser: ${{ secrets.ORKA_USER }}
@@ -89,7 +89,7 @@ jobs:
     steps:
     - name: Job 3
       id: job3
-      uses: jeff-vincent/orka-actions-down@main
+      uses: jeff-vincent/orka-actions-down@v1.0.0
       with:
         orkaIP: http://10.221.188.100
         orkaUser: ${{ secrets.ORKA_USER }}
