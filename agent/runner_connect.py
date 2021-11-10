@@ -10,7 +10,7 @@ import tarfile
 from pathlib import Path
 
 
-logging.basicConfig(filename='runner-connect.log', level=logging.DEBUG)
+# logging.basicConfig(filename='runner-connect.log', level=logging.DEBUG)
 CONFIG = configparser.ConfigParser()
 CONFIG.read('/Users/admin/agent/runner_connect.cfg')
 PATH_TO_RUNNER = CONFIG['runner']['path']
@@ -55,7 +55,7 @@ class GitHubActionsRunnerConnect:
         try:
             return f"{self.api_base_url}repos/{self.github_user}/{self.github_repo_name}/actions/runners/registration-token"
         except Exception as e:
-            logging.error(str(e))
+            print(str(e))
 
     def generate_token(self):
         try:
@@ -66,7 +66,7 @@ class GitHubActionsRunnerConnect:
             log = f"Token created: {self.token}"
             logging.info(log)
         except Exception as e:
-            logging.error(str(e))
+            print(str(e))
 
     def register_runner(self):
         try:
@@ -79,7 +79,7 @@ class GitHubActionsRunnerConnect:
             logging.info(f"RUNNER-NAME: {self.vm_name}")
             logging.info(str(response.stdout))
         except Exception as e:
-            logging.error(str(e))
+            print(str(e))
 
     def start_runner(self):
         try:
@@ -88,12 +88,11 @@ class GitHubActionsRunnerConnect:
             subprocess.Popen(start_path, shell=True)
             logging.info('Runner started.')
         except Exception as e:
-            logging.error(str(e))
+            print(str(e))
 
-def main(runner_connect)
+def main(runner_connect):
     if runner_connect.check_for_runner():
         runner_connect.generate_token()
-        print(runner_connect.token)
         runner_connect.register_runner()
         runner_connect.start_runner()
     else:
