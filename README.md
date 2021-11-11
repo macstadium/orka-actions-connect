@@ -20,7 +20,7 @@ The unique tag that has been applied to the newly minted runner is passed to the
 2. Clone this repo down to the VM. 
 3. Run the following:
 ```
-cd orka-actions-connect/agent && ./setup.sh
+cd orka-actions-connect/agent && sudo ./setup.sh
 ```
 4. From your local machine via the Orka CLI, run:
 ```
