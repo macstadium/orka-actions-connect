@@ -18,8 +18,10 @@ The resulting macOS VM in Orka registers itself as a GitHub self-hosted runner t
 2. Clone this repo down to the VM. 
 3. Run the following:
 ```
-cd orka-actions-connect/agent && sudo ./setup.sh
+cd orka-actions-connect/agent && ./setup.sh
 ```
+> NOTE: you will be promtped for your sudo password.
+
 4. From your local machine via the Orka CLI, run:
 ```
 orka image list
