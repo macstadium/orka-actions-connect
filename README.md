@@ -56,15 +56,12 @@ jobs:
     steps:
     - name: Job 1
       id: job1
-      uses: jeff-vincent/orka-actions-up@v1.0.1
+      uses: jeff-vincent/orka-actions-up@v1.1.0
       with:
-        orkaIP: http://10.221.188.100
         orkaUser: ${{ secrets.ORKA_USER }}
         orkaPass: ${{ secrets.ORKA_PASS }}
         orkaBaseImage: gha_bigsur_v3.img             # NOTE: this `.img` file is the agent that has been defined in Orka
-        githubUser: ${{ secrets.GH_USER }}           # All other Orka-related values can be found in your provided IP Plan
-        githubPat: ${{ secrets.GH_PAT }}
-        githubRepoName: orka-actions-up
+        githubPat: ${{ secrets.GH_PAT }}             # All other Orka-related values can be found in your provided IP Plan
         vpnUser: ${{ secrets.VPN_USER }}
         vpnPassword: ${{ secrets.VPN_PASSWORD }}
         vpnAddress: ${{ secrets.VPN_ADDRESS }}
@@ -87,15 +84,11 @@ jobs:
     steps:
     - name: Job 3
       id: job3
-      uses: jeff-vincent/orka-actions-down@v1.0.0
+      uses: jeff-vincent/orka-actions-down@v1.1.0
       with:
-        orkaIP: http://10.221.188.100
         orkaUser: ${{ secrets.ORKA_USER }}
         orkaPass: ${{ secrets.ORKA_PASS }}
-        orkaBaseImage: gha_bigsur_v3.img
-        githubUser: ${{ secrets.GH_USER }}
         githubPat: ${{ secrets.GH_PAT }}
-        githubRepoName: orka-actions-up
         vpnUser: ${{ secrets.VPN_USER }}
         vpnPassword: ${{ secrets.VPN_PASSWORD }}
         vpnAddress: ${{ secrets.VPN_ADDRESS }}
