@@ -3,7 +3,7 @@
 Orka-Actions-Connect will allow you to run your existing GitHub Actions workflow on single use macOS VMs in MacStadium's Orka. 
 
 ## Overview
-Orka-Actions-Connect relies on two Actions -- [`jeff-vincent/orka-actions-up@v1.1.0`](https://github.com/marketplace/actions/orka-actions-up) and [`jeff-vincent/orka-actions-down@v1.1.0`](https://github.com/marketplace/actions/orka-actions-down). These Actions are meant to run on `ubuntu-latest`. They are responsible for connecting to your Orka environment via VPN, spinning up a macOS VM, and ultimately tearing it down.
+Orka-Actions-Connect relies on two Actions -- [`jeff-vincent/orka-actions-up@v1.1.1`](https://github.com/marketplace/actions/orka-actions-up) and [`jeff-vincent/orka-actions-down@v1.1.0`](https://github.com/marketplace/actions/orka-actions-down). These Actions are meant to run on `ubuntu-latest`. They are responsible for connecting to your Orka environment via VPN, spinning up a macOS VM, and ultimately tearing it down.
 
 The resulting macOS compute resource registers itself as a GitHub self-hosted runner tagged specifically for the given workflow it has been spun up for. At this point, any number of `Jobs` structured as such as `job2` below, will be run on the ephemeral macOS instance. Regardless of the number of jobs run on the macOS instance, the final job must follow the structure of `Job3` in the example below.
 
@@ -56,16 +56,18 @@ jobs:
     steps:
     - name: Job 1
       id: job1
-      uses: jeff-vincent/orka-actions-up@v1.1.0
+      uses: jeff-vincent/orka-actions-up@v1.1.1
       with:
         orkaUser: ${{ secrets.ORKA_USER }}
         orkaPass: ${{ secrets.ORKA_PASS }}
         orkaBaseImage: gha_bigsur_v3.img             # NOTE: this `.img` file is the agent that has been defined in Orka
-        githubPat: ${{ secrets.GH_PAT }}             # All other Orka-related values can be found in your provided IP Plan
+        githubPat: ${{ secrets.GH_PAT }}             
         vpnUser: ${{ secrets.VPN_USER }}
         vpnPassword: ${{ secrets.VPN_PASSWORD }}
         vpnAddress: ${{ secrets.VPN_ADDRESS }}
         vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+        vcpuCount: 6
+        coreCount: 6
     outputs:
       vm-name: ${{ steps.job1.outputs.vm-name }}
          
