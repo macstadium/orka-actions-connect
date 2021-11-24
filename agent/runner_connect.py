@@ -103,5 +103,6 @@ def main(runner_connect)
         runner_connect.start_runner()
 
 if __name__ == '__main__':
+    os.setuid(501)
     runner_connect = GitHubActionsRunnerConnect()
     main(runner_connect)
