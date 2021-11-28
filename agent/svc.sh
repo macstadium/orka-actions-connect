@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SVC_NAME="actions.runner.$USER-$REPO.test.service"
+SVC_NAME="orka.actions.connect.service"
 SVC_NAME=${SVC_NAME// /_}
-SVC_DESCRIPTION="GitHub Actions Runner ($USER-$REPO.test)"
+SVC_DESCRIPTION="GitHub Actions Runner (orka-actions-connect.runner)"
 
 SVC_CMD=$1
 arg_2=${2}

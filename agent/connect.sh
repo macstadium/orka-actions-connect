@@ -1,22 +1,20 @@
 #!/bin/bash
 
-export USER=$(curl -s "http://169.254.169.254/metadata/github_user" | \
+user=$(curl -s "http://169.254.169.254/metadata/github_user" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
-export REPO=$(curl -s "http://169.254.169.254/metadata/github_repo_name" | \
+repo=$(curl -s "http://169.254.169.254/metadata/github_repo_name" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
-
-
 vm_name=$(curl -s "http://169.254.169.254/metadata/vm_name" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
 pat=$(curl -s "http://169.254.169.254/metadata/github_pat" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
-repo_url="https://github.com/$USER/$REPO"
+repo_url="https://github.com/$user/$repo"
 
 runner_token=$(curl \
 -XPOST \
 -H"Accept: application/vnd.github.v3+json" \
 -H"authorization: Bearer $pat" \
-"https://api.github.com/repos/$USER/$REPO/actions/runners/registration-token" | \
+"https://api.github.com/repos/$user/$repo/actions/runners/registration-token" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
 
 cd /Users/admin/agent/
