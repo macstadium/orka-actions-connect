@@ -5,6 +5,7 @@ export USER=$(curl -s "http://169.254.169.254/metadata/github_user" | \
 export REPO=$(curl -s "http://169.254.169.254/metadata/github_repo_name" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
 
+
 vm_name=$(curl -s "http://169.254.169.254/metadata/vm_name" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
 pat=$(curl -s "http://169.254.169.254/metadata/github_pat" | \
