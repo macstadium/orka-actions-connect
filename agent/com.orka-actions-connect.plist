@@ -3,19 +3,12 @@
 <plist version="1.0">
  <dict>
    <key>Label</key>
-   <string>com.runner.connect.plist</string>
+   <string>com.orka-actions-connect.plist</string>
    <key>RunAtLoad</key>
-   <true/>
-   <key>GroupName</key>
-   <string>staff</string>
-   <key>InitGroups</key>
    <true/>
    <key>ProgramArguments</key>
    <array>
-     <string>open</string>
-     <string>-a</string>
-     <string>Terminal</string>
-     <string>/Users/admin/agent/runner_connect.py</string>
+     <string>/Users/admin/agent/connect.sh</string>
    </array>
    <key>StandardErrorPath</key>
    <string>/tmp/orka-actions-connect.err</string>
