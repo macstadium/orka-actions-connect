@@ -18,6 +18,6 @@ runner_token=$(curl \
         python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
 
 cd /Users/admin/agent/
-./config.sh --url $repo_url --token $runner_token --name $vm_name --unattended --work "_work" --labels $vm_name
+./config.sh --url $repo_url --token $runner_token --name $vm_name --work "_work" --labels $vm_name
 ./svc.sh install
 ./svc.sh start
