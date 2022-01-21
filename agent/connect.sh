@@ -4,7 +4,7 @@ user=$(curl -s "http://169.254.169.254/metadata/github_user" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
 repo=$(curl -s "http://169.254.169.254/metadata/github_repo_name" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
-vm_name=$(curl -s "http://169.254.169.254/metadata/vm_name" | \
+vm_name=$(curl -s "http://169.254.169.254/metadata/orka_vm_name" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
 pat=$(curl -s "http://169.254.169.254/metadata/github_pat" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
