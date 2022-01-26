@@ -3,7 +3,7 @@
 Orka-Actions-Connect will allow you to run your existing GitHub Actions workflow on a single-use macOS VM in MacStadium's Orka. 
 
 ## Overview
-Orka-Actions-Connect relies on two Actions -- [`jeff-vincent/orka-actions-up@v1.0.1`](https://github.com/marketplace/actions/orka-actions-up) and [`jeff-vincent/orka-actions-down@v1.0.0`](https://github.com/marketplace/actions/orka-actions-down). These Actions are meant to run on `ubuntu-latest`. They are responsible for connecting to your Orka environment via VPN, spinning up a macOS VM, and ultimately tearing it down.
+Orka-Actions-Connect relies on two Actions -- [`jeff-vincent/orka-actions-up@v1.1.1`](https://github.com/marketplace/actions/orka-actions-up) and [`jeff-vincent/orka-actions-down@v1.1.0`](https://github.com/marketplace/actions/orka-actions-down). These Actions are meant to run on `ubuntu-latest`. They are responsible for connecting to your Orka environment via VPN, spinning up a macOS VM, and ultimately tearing it down.
 
 The resulting macOS VM in Orka registers itself as a GitHub Actions self-hosted runner tagged specifically for the workflow it has been spun up for. At this point, any number of `Jobs`, structured such as `job2` below, will be run on the ephemeral macOS instance. Regardless of the number of jobs run on the macOS VM, the final job must follow the structure of `Job3` in the example below.
 
