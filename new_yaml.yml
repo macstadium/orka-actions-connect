@@ -1,0 +1,187 @@
+name: CI
+true:
+  pull_request: null
+  push:
+    branches:
+    - master
+env:
+  BUNDLE_PATH: vendor/bundle
+  DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
+  FASTLANE_SKIP_UPDATE_CHECK: true
+  FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 60
+  FASTLANE_XCODE_LIST_TIMEOUT: 60
+  HOMEBREW_NO_INSTALL_CLEANUP: true
+jobs:
+  RuboCop:
+    needs:
+    - spin-up
+    runs-on:
+    - self-hosted
+    - ${{ needs.spin-up.outputs.vm-name }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+        ruby-version: '2.7'
+    - name: RuboCop
+      run: bundle exec rubocop --format github
+  SwiftLint:
+    needs:
+    - spin-up
+    runs-on:
+    - self-hosted
+    - ${{ needs.spin-up.outputs.vm-name }}
+    steps:
+    - uses: actions/checkout@v2
+    - id: cache_pods
+      name: 'Cache: Pods'
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-lint-pods-${{ hashFiles('**/Podfile.lock') }}
+        path: Pods
+    - if: steps.cache_pods.outputs.cache-hit != 'true'
+      name: Install Pods
+      run: 'bundle install
+
+        ONLY_SUPPORT_MODULES=1 bundle exec pod install --repo-update
+
+        '
+    - name: SwiftLint
+      run: Pods/SwiftLint/swiftlint lint --strict --config .swiftlint.yml --reporter
+        github-actions-logging
+    - name: SwiftFormat
+      run: Pods/SwiftFormat/CommandLineTool/swiftformat --lint --config .swiftformat
+        .
+  YamlLint:
+    needs:
+    - spin-up
+    runs-on:
+    - self-hosted
+    - ${{ needs.spin-up.outputs.vm-name }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: YamlLint
+      run: yamllint --strict --format github .
+  spin-up:
+    outputs:
+      vm-name: ${{ steps.job1.outputs.vm-name }}
+    runs-on: ubuntu-latest
+    steps:
+    - id: spin-up
+      name: spin-up
+      uses: jeff-vincent/orka-actions-up@v1.1.1
+      with:
+        coreCount: 6
+        githubPat: ${{ secrets.GH_PAT }}
+        orkaBaseImage: gha-agent.img
+        orkaPass: ${{ secrets.ORKA_PASS }}
+        orkaUser: ${{ secrets.ORKA_USER }}
+        vcpuCount: 6
+        vpnAddress: ${{ secrets.VPN_ADDRESS }}
+        vpnPassword: ${{ secrets.VPN_PASSWORD }}
+        vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+        vpnUser: ${{ secrets.VPN_USER }}
+  tear-down:
+    if: always()
+    needs:
+    - spin-up
+    - YamlLint
+    - RuboCop
+    - SwiftLint
+    - test
+    runs-on: ubuntu-latest
+    steps:
+    - id: tear-down
+      name: tear-down
+      uses: jeff-vincent/orka-actions-down@v1.1.0
+      with:
+        githubPat: ${{ secrets.GH_PAT }}
+        orkaPass: ${{ secrets.ORKA_PASS }}
+        orkaUser: ${{ secrets.ORKA_USER }}
+        vmName: ${{ needs.job1.outputs.vm-name }}
+        vpnAddress: ${{ secrets.VPN_ADDRESS }}
+        vpnPassword: ${{ secrets.VPN_PASSWORD }}
+        vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+        vpnUser: ${{ secrets.VPN_USER }}
+  test:
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
+    needs:
+    - spin-up
+    runs-on:
+    - self-hosted
+    - ${{ needs.spin-up.outputs.vm-name }}
+    steps:
+    - uses: actions/checkout@v2
+    - id: cache_pods
+      name: 'Cache: Pods'
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-pods-${{ matrix.xcode }}- ${{ hashFiles('**/Gemfile.lock',
+          '**/Podfile.lock', 'Tools/BuildMaterialDesignIconsFont.sh') }}
+        path: 'Pods
+
+          Tools/MaterialDesignIcons.ttf
+
+          Tools/MaterialDesignIcons.json
+
+          '
+    - id: cache_gems
+      name: 'Cache: Gems'
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-gems-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{
+          hashFiles('**/Gemfile.lock') }}
+        path: vendor/bundle
+    - name: Cache Derived Data
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-derivedData-cache-${{ hashFiles('**/Podfile.lock', 'HomeAssistant.xcworkspace/xcshareddata/swiftpm/Package.resolved')
+          }}
+        path: '~/Library/Developer/Xcode/DerivedData/HomeAssistant-*/Build
+
+          ~/Library/Developer/Xcode/DerivedData/HomeAssistant-*/SourcePackages
+
+          '
+        restore-keys: '${{ runner.os }}-derivedData-cache
+
+          '
+    - name: Avoid inode changes for DerivedData
+      run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges
+        -bool YES
+    - if: ${{ false }}
+      name: Install Brews
+      run: brew bundle
+    - if: steps.cache_gems.outputs.cache-hit != 'true'
+      name: Install Gems
+      run: bundle install --jobs 4 --retry 3
+    - if: steps.cache_pods.outputs.cache-hit != 'true'
+      name: Install Pods Release
+      run: bundle exec pod install --repo-update
+    - name: Run tests
+      run: bundle exec fastlane test
+    - name: Upload Code Coverage
+      uses: codecov/codecov-action@v1
+    - if: ${{ always() }}
+      name: Upload Test Logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-logs
+        path: '~/Library/Logs/DiagnosticReports
+
+          ~/Library/Developer/Xcode/DerivedData/HomeAssistant-*/Logs/Test
+
+          ~/Library/Logs/scan
+
+          '
+    - name: Upload Simulator App
+      uses: actions/upload-artifact@v2
+      with:
+        name: ios-simulator
+        path: ~/Library/Developer/Xcode/DerivedData/HomeAssistant-*/Build/Products/Debug-iphonesimulator/*.app
+    strategy:
+      matrix:
+        xcode:
+        - '13.2'
+    timeout-minutes: 60
