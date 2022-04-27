@@ -1,0 +1,161 @@
+name: A/B Testing
+on:
+  pull_request:
+    branches:
+    - master
+    paths:
+    - .github/workflows/abtesting.yml
+    - abtesting/**
+    - scripts/*
+    - scripts/abtesting.sh
+    - '!abtesting/*.md'
+    - '!abtesting/Design/**'
+  push:
+    branches:
+    - master
+    paths:
+    - .github/workflows/abtesting.yml
+    - abtesting/**
+    - scripts/*
+    - scripts/abtesting.sh
+    - '!abtesting/*.md'
+    - '!abtesting/Design/**'
+  workflow_dispatch: null
+env:
+  SAMPLE: ABTesting
+  secrets_passphrase: ${{ secrets.GHASECRETSGPGPASSPHRASE1 }}
+jobs:
+  cocoapods:
+    env:
+      SPM: false
+      TEST: true
+    name: cocoapods
+    needs:
+    - up
+    runs-on:
+    - self-hosted
+    - "${{ needs.up.outputs.vm-name }}"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Setup
+      run: 'cd abtesting/LegacyABTestingQuickstart
+
+        gem install bundler
+
+        bundle install
+
+        gem install xcpretty
+
+        bundle exec pod install --repo-update
+
+        cd ..
+
+        ../scripts/install_prereqs/abtesting.sh
+
+        '
+    - env:
+        DEVICE: iPhone 11
+        LEGACY: true
+        OS: iOS
+        SWIFT_SUFFIX: ''
+      name: Build Swift
+      run: ./scripts/test.sh
+  down:
+    if: always()
+    needs:
+    - up
+    - cocoapods
+    - spm
+    runs-on: ubuntu-latest
+    steps:
+    - id: down
+      name: down
+      uses: jeff-vincent/orka-actions-down-org@1.0.0
+      with:
+        githubOrg: example-org-1
+        githubPat: ${{ secrets.GH_PAT }}
+        orkaPass: ${{ secrets.ORKA_PASS }}
+        orkaUser: ${{ secrets.ORKA_USER }}
+        vmName: ${{ needs.job1.outputs.vm-name }}
+        vpnAddress: ${{ secrets.VPN_ADDRESS }}
+        vpnPassword: ${{ secrets.VPN_PASSWORD }}
+        vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+        vpnUser: ${{ secrets.VPN_USER }}
+  spm:
+    env:
+      DEVICE: ${{ matrix.device }}
+      DIR: abtesting
+      OS: ${{ matrix.os }}
+      SETUP: abtesting
+      SPM: true
+      TEST: ${{ matrix.test }}
+      XCODE_VERSION: ${{ matrix.xcode }}
+    name: spm (Xcode ${{ matrix.xcode }} - ${{ matrix.os }})
+    needs:
+    - up
+    runs-on:
+    - self-hosted
+    - "${{ needs.up.outputs.vm-name }}"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Setup
+      run: 'sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
+
+        gem install xcpretty
+
+        cd $SETUP
+
+        ../scripts/install_prereqs/${SETUP}.sh
+
+        '
+    - name: Build and Test SwiftUI (${{ matrix.os }})
+      run: ./scripts/test.sh
+    strategy:
+      matrix:
+        include:
+        - device: iPhone 12
+          os: iOS
+          test: true
+        - device: Apple TV 4K (at 1080p) (2nd generation)
+          os: tvOS
+          test: true
+        - device: localhost
+          os: macOS
+          test: true
+        - device: Apple Watch Series 5 - 44m
+          os: watchOS
+          test: false
+        - device: localhost
+          os: catalyst
+          test: true
+        os:
+        - iOS
+        - tvOS
+        - macOS
+        - watchOS
+        - catalyst
+        xcode:
+        - 12.5.1
+        - '13.1'
+  up:
+    outputs:
+      vm-name: ${{ steps.up.outputs.vm-name }}
+    runs-on: ubuntu-latest
+    steps:
+    - id: up
+      name: up
+      uses: jeff-vincent/orka-actions-up-org@1.0.0
+      with:
+        coreCount: 3
+        githubOrg: example-org-1
+        githubPat: ${{ secrets.GH_PAT }}
+        orkaBaseImage: gha-org-agent.img
+        orkaPass: ${{ secrets.ORKA_PASS }}
+        orkaUser: ${{ secrets.ORKA_USER }}
+        vcpuCount: 3
+        vpnAddress: ${{ secrets.VPN_ADDRESS }}
+        vpnPassword: ${{ secrets.VPN_PASSWORD }}
+        vpnServerCert: ${{ secrets.VPN_SERVER_CERT }}
+        vpnUser: ${{ secrets.VPN_USER }}
