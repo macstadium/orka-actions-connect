@@ -1,3 +1,11 @@
+# Announcement - 2/22/2022
+
+This is **not** the official Github Actions Plugin provided by MacStadium. There is **no support** for this plugin. 
+
+[Official Plugin](https://orkadocs.macstadium.com/docs/github-actions)
+
+[Github](https://github.com/macstadium/orka-integrations/tree/master/GitHub)
+
 # orka-actions-connect
 
 Orka-Actions-Connect will allow you to run your existing GitHub Actions workflow on a single-use macOS VM in MacStadium's Orka. 
